@@ -8,7 +8,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/',
+    publicPath: './',
     clean: true
   },
   module: {
@@ -35,7 +35,8 @@ module.exports = {
     historyApiFallback: true,
     hot: true,
     open: true,
-    port: 3202
+    port: 3202,
+    publicPath: '/'
   },
   plugins: [
     new HtmlWebpackPlugin({
