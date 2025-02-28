@@ -368,7 +368,7 @@ function getUserDocuments($data)
             created_at,
             updated_at
         FROM Folders
-        WHERE parent_id IS NULL AND owner_id = ?
+        WHERE parent_id = 0 AND owner_id = ?
 
         UNION ALL
 

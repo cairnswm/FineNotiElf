@@ -7,8 +7,8 @@ import InvitesModal from "../InvitesModal";
 import Folder from "./Folder";
 
 export default function FolderStructure({onDocumentSelect}) {
-  const { documents, moveDocument, addDocumentBefore } = useDocuments();
-  const { moveFolder } = useFolders();
+  const { documents, moveDocument } = useDocuments();
+  const { moveFolder, createFolder } = useFolders();
   const { invites } = useInvites();
   const [showInvites, setShowInvites] = useState(false);
   const [draggedItemId, setDraggedItemId] = useState(null);
@@ -55,12 +55,8 @@ export default function FolderStructure({onDocumentSelect}) {
   };
 
   const handleAddFolder = () => {
-    const newFolder = {
-      name: "New Folder",
-      type: "folder",
-      children: []
-    };
-    addDocumentBefore('shared-folder', newFolder); // Add new folder before "Shared with Me"
+    // Create a new folder at the root level with parent ID 0
+    createFolder(0, "New Folder");
   };
 
   return (

@@ -108,6 +108,12 @@ export const FolderProvider = ({ children }) => {
     });
     
     // Create folder on the server
+    const body = {
+      name: folderName,
+    }
+    if (parentFolderId) {
+      body.parent_id = parentFolderId;
+    }
     try {
       const response = await fetch('http://localhost/notielf/php/api.php/folders', {
         method: 'POST',
@@ -116,10 +122,7 @@ export const FolderProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
           'App_id': tenant,
         },
-        body: JSON.stringify({
-          name: folderName,
-          parent_id: parentFolderId
-        })
+        body: JSON.stringify(body)
       });
 
       if (!response.ok) {
@@ -246,11 +249,13 @@ export const FolderProvider = ({ children }) => {
         });
         
         // Find the root items (folders with no parent)
-        const rootItems = items.filter(item => item.parent_id === null);
+        const rootItems = items.filter(item => item.parent_id === 0);
+
+        console.log("rootItems", rootItems);
         
         // Process each item to add it to its parent's children array
         items.forEach(item => {
-          if (item.parent_id !== null && itemMap[item.parent_id]) {
+          if (item.parent_id !== 0 && itemMap[item.parent_id]) {
             // Add this item to its parent's children
             itemMap[item.parent_id].children.push(item);
           }
@@ -274,31 +279,15 @@ export const FolderProvider = ({ children }) => {
           return node;
         };
         
-        // Find "My Documents" folder to use as the root if it exists
-        // const myDocuments = rootItems.find(item => item.name === "My Documents" || item.parent_id === "");
-        const myDocuments = rootItems.find(item => item.parent_id === "");
-        
-        if (myDocuments) {
-          // Process the My Documents folder and return it
-          return processDocuments(myDocuments);
-        } else if (rootItems.length > 0) {
-          // If "My Documents" doesn't exist but we have other root folders,
-          // create a virtual root folder containing all root folders
-          const virtualRoot = {
-            id: 0,
-            name: 'My Documents',
-            type: 'folder',
-            children: rootItems.map(processDocuments)
-          };
-          return virtualRoot;
-        }
-        
-        return {
+        // Create a virtual root folder containing all root folders
+        const virtualRoot = {
           id: 0,
           name: 'My Documents',
           type: 'folder',
-          children: []
+          children: rootItems.map(processDocuments)
         };
+        
+        return virtualRoot;
       };
       
       const transformedData = transformData(data);
