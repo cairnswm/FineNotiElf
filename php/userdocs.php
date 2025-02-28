@@ -1,7 +1,7 @@
 <?php
 
 
-include_once __DIR__ . "./corsheaders.php";
+include_once __DIR__ . "/corsheaders.php";
 
 header('Content-Type: application/json');
 

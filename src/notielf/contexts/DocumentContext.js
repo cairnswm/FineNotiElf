@@ -308,7 +308,7 @@ export function DocumentProvider({ children }) {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
-            'app_id': tenant,
+            'App_id': tenant,
           },
         });
 
@@ -317,7 +317,70 @@ export function DocumentProvider({ children }) {
         }
 
         const data = await response.json();
-        setDocuments(data);
+        
+        // Transform the flat array into a nested structure
+        const transformData = (items) => {
+          // Create a map of all items by id for quick lookup
+          const itemMap = {};
+          items.forEach(item => {
+            // Convert document type to lowercase to match existing format
+            if (item.type === 'Document') {
+              item.type = 'document';
+            }
+            
+            // Initialize children array if not present
+            if (!item.children) {
+              item.children = [];
+            }
+            
+            itemMap[item.id] = item;
+          });
+          
+          // Find the root items (My Documents and Shared with Me)
+          const rootItems = items.filter(item => item.parent_id === null);
+          
+          // Process each item to add it to its parent's children array
+          items.forEach(item => {
+            if (item.parent_id !== null && itemMap[item.parent_id]) {
+              // Add this item to its parent's children
+              itemMap[item.parent_id].children.push(item);
+            }
+          });
+          
+          // Find "My Documents" folder to use as the root
+          const myDocuments = rootItems.find(item => item.name === "My Documents");
+          
+          if (myDocuments) {
+            // Format document objects in children to match expected structure
+            const processDocuments = (node) => {
+              if (node.children && node.children.length > 0) {
+                node.children = node.children.map(child => {
+                  if (child.type === 'document') {
+                    return {
+                      ...child,
+                      owner: currentUser?.email || '',
+                      sharedWith: [],
+                      readonly: child.readonly === 0 ? false : true
+                    };
+                  }
+                  return processDocuments(child);
+                });
+              }
+              return node;
+            };
+            
+            return processDocuments(myDocuments);
+          }
+          
+          return {
+            id: 0,
+            name: 'My Documents',
+            type: 'folder',
+            children: []
+          };
+        };
+        
+        setDocuments(transformData(data));
       } catch (err) {
         console.error('Failed to fetch documents:', err);
         setError(err.message);
