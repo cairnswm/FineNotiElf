@@ -2,7 +2,7 @@
 
 function CreateData($config, $data)
 {
-    global $conn;
+    global $gapiconn;
     $new_record = null;
 
     // Check if create operation is allowed
@@ -32,7 +32,7 @@ function CreateData($config, $data)
         }, $config['create']));
         $query = "INSERT INTO " . $config['tablename'] . " ($fields) VALUES ($placeholders) ON DUPLICATE KEY UPDATE $updateFields";
 
-        $stmt = $conn->prepare($query);
+        $stmt = $gapiconn->prepare($query);
 
         // Extract values from $data based on the keys in $config['create']
         $values = array_map(function ($field) use ($data) {
@@ -92,7 +92,7 @@ function CreateData($config, $data)
 
 function CreateDataBulk($config, $data)
 {
-    global $conn;
+    global $gapiconn;
     $new_records = [];
 
     // Check if create operation is allowed
@@ -127,7 +127,7 @@ function CreateDataBulk($config, $data)
     $placeholders = implode(", ", array_fill(0, count($config['create']), "?"));
     $query = "INSERT INTO " . $config['tablename'] . " ($fields) VALUES ($placeholders)";
 
-    $stmt = $conn->prepare($query);
+    $stmt = $gapiconn->prepare($query);
 
     $insert_ids = [];
 
@@ -178,7 +178,7 @@ function CreateDataBulk($config, $data)
 
 function UpdateData($config, $id, $data)
 {
-    global $conn;
+    global $gapiconn;
     $updated_record = null;
 
     // Check if update operation is allowed
@@ -210,7 +210,7 @@ function UpdateData($config, $id, $data)
 
         $query = "UPDATE " . $config['tablename'] . " SET $fields WHERE " . $config['key'] . " = ?";
 
-        $stmt = $conn->prepare($query);
+        $stmt = $gapiconn->prepare($query);
 
         $types = '';
         $values = [];
@@ -247,7 +247,7 @@ function UpdateData($config, $id, $data)
 
 function DeleteData($config, $id)
 {
-    global $conn;
+    global $gapiconn;
     $affected_rows = 0;
 
     // Check if delete operation is allowed
@@ -270,7 +270,7 @@ function DeleteData($config, $id)
         // Prepare and execute the delete query
         $query = "DELETE FROM " . $config['tablename'] . " WHERE " . $config['key'] . " = ?";
 
-        $stmt = $conn->prepare($query);
+        $stmt = $gapiconn->prepare($query);
         $stmt->bind_param('s', $id);
 
         $stmt->execute();

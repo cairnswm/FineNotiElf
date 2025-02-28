@@ -1,11 +1,11 @@
 <?php
-include_once dirname(__FILE__)."/dbconfig.php";
+include_once dirname(__FILE__)."/cairnsgamesconfig.php";
 
 $mysqli = null;
 $writeStatementLog = false;
 
 if ($mysqli == null) {
-  $mysqli = mysqli_connect($dbconfig["server"], $dbconfig["username"], $dbconfig["password"], $dbconfig["database"]);
+  $mysqli = mysqli_connect($cairnsgamesconfig["server"], $cairnsgamesconfig["username"], $cairnsgamesconfig["password"], $cairnsgamesconfig["database"]);
   if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }

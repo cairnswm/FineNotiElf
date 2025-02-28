@@ -1,12 +1,15 @@
 <?php
 
+
+include_once "./notielfconfig.php";
 global $conn;
 
 function getConnection() {
     global $conn;
     
     if (!isset($conn)) {
-        $conn = new mysqli('cairns.co.za', 'cairnsco_notielf', 'cairnsco_notielf', 'cairnsco_notielf');
+        global $notielfconfig;
+        $conn = new mysqli($notielfconfig["server"], $notielfconfig["username"], $notielfconfig["password"], $notielfconfig["database"]);
         
         if ($conn->connect_error) {
             throw new Exception("Connection failed: " . $conn->connect_error);
@@ -43,4 +46,3 @@ function logError($runId, $nodeId, $message, $code = null) {
     $stmt->close();
     return $insertId;
 }
-

@@ -1,7 +1,7 @@
 <?php
 
 
-$dbconfig = array(
+$cairnsgamesconfig = array(
     "server" => 'cairns.co.za',
     "username" => 'cairnsco_cairnsgames',
     "password" => 'cairnsco_cairnsgames',

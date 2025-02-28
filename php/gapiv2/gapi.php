@@ -1,6 +1,5 @@
 <?php
 
-include_once dirname(__FILE__) . "/dbconn.php";
 include_once dirname(__FILE__) . "/rud.php";
 include_once dirname(__FILE__) . "/get.php";
 include_once dirname(__FILE__) . "/generateopenapi.php";

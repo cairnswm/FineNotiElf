@@ -1,11 +1,11 @@
 <?php
 
-include_once "../dbconfig.php";
+include_once __DIR__ . "/../notielfconfig.php";
 
-// Create a global $conn exists for the MySQL connection
-global $conn;
-$conn = new mysqli($dbconfig["server"], $dbconfig["username"], $dbconfig["password"], $dbconfig["database"]);
+// Create a global $gapiconn exists for the MySQL connection
+global $gapiconn;
+$gapiconn = new mysqli($notielfconfig["server"], $notielfconfig["username"], $notielfconfig["password"], $notielfconfig["database"]);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if ($gapiconn->connect_error) {
+    die("Connection failed: " . $gapiconn->connect_error);
 }
