@@ -16,6 +16,14 @@ jobs:
         run: npm ci 
         
       - name: Build Site
+        env:
+          REACT_APP_TENANT_API: https://cairnsgames.co.za/php/tenant/
+          REACT_APP_AUTH_API: https://cairnsgames.co.za/php/auth/
+          REACT_APP_SETTINGS_API: https://cairnsgames.co.za/php/settings/api.php/
+          REACT_APP_CONTENT_API: https://cairnsgames.co.za/php/content/
+          REACT_APP_FILES: https://cairnsgames.co.za/files/
+          REACT_APP_PAYWEB3_API: http://cairnsgames.co.za/php/payweb3/
+          NOTIELF_API: ./php/
         run: npm run build        
 
       - name: Deploy Site
