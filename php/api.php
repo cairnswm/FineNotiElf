@@ -1,4 +1,5 @@
 <?php
+
 include_once dirname(__FILE__) . "/corsheaders.php";
 include_once dirname(__FILE__) . "/gapiv2/dbconn.php";
 include_once dirname(__FILE__) . "/gapiv2/v2apicore.php";
@@ -20,6 +21,7 @@ if (validateJwt($token, false) == false) {
 
 $user = getUserFromToken($token);
 $userid = $user->id;
+
 
 // Define the configurations
 $klokoconfigs = [
@@ -103,7 +105,8 @@ $klokoconfigs = [
         'getinvites' => 'getInvites',
         'acceptinvite' => 'acceptInvite',
         'declineinvite' => 'declineInvite',
-        'getuserdocuments' => 'getUserDocuments'
+        'getuserdocuments' => 'getUserDocuments',
+        'getcontent' => 'getContent'
     ]
 ];
 
@@ -129,6 +132,32 @@ function beforeCreateInvite($config, $data)
     
     // Set the from_id to the current user
     $data['from_id'] = $userid;
+    
+    // Set default status to 'sent' if not provided
+    if (!isset($data['status'])) {
+        $data['status'] = 'sent';
+    }
+    
+    // Validate required fields
+    if (!isset($data['to_email']) || !filter_var($data['to_email'], FILTER_VALIDATE_EMAIL)) {
+        throw new Exception("Valid to_email is required");
+    }
+    
+    if (!isset($data['document_id'])) {
+        throw new Exception("document_id is required");
+    }
+    
+    // Check if the user has permission to share this document
+    $sql = "SELECT id FROM Documents WHERE id = ? AND owner_id = ?";
+    $stmt = executeSQL($sql, [$data['document_id'], $userid]);
+    $stmt->store_result();
+    
+    if ($stmt->num_rows === 0) {
+        $stmt->close();
+        throw new Exception("You don't have permission to share this document");
+    }
+    
+    $stmt->close();
     
     return [$config, $data];
 }
@@ -292,17 +321,18 @@ function acceptInvite($data)
     // Update invite status
     $sql = "UPDATE Invite SET status = 'accepted' WHERE id = ?";
     executeSQL($sql, [$inviteId]);
-    
+
     // Get invite details
-    $sql = "SELECT document_id, folder_id FROM Invite WHERE id = ?";
+    $sql = "SELECT document_id FROM Invite WHERE id = ?";
     $stmt = executeSQL($sql, [$inviteId]);
-    $stmt->bind_result($documentId, $folderId);
+
+    $stmt->bind_result($documentId);
     $stmt->fetch();
     $stmt->close();
-    
-    // Create document ownership record
-    $sql = "INSERT INTO DocumentOwnership (document_id, owner_id, folder_id) VALUES (?, ?, ?)";
-    executeSQL($sql, [$documentId, $userid, $folderId]);
+
+    // Create document ownership record with folder_id = -1 (shared with me folder)
+    $sql = "INSERT INTO DocumentOwnership (document_id, owner_id, folder_id) VALUES (?, ?, -1)";
+    executeSQL($sql, [$documentId, $userid]);
     
     return ['success' => true, 'message' => 'Invite accepted successfully'];
 }
@@ -411,6 +441,57 @@ function getUserDocuments($data)
     $stmt->close();
     
     return $documents;
+}
+
+function getContent($data)
+{
+    global $userid;
+    
+    if (!isset($data['document_id'])) {
+        return ['error' => true, 'message' => 'Document ID is required'];
+    }
+    
+    $documentId = $data['document_id'];
+    
+    // Check if the user is the owner of the document or has access through DocumentOwnership
+    $sql = "SELECT d.id, d.title, d.type, d.content, d.readonly, d.editing_id, d.created_at, d.updated_at
+            FROM Documents d
+            WHERE d.id = ? AND (
+                d.owner_id = ? OR 
+                EXISTS (
+                    SELECT 1 
+                    FROM DocumentOwnership do 
+                    WHERE do.document_id = d.id AND do.owner_id = ?
+                )
+            )";
+    
+    $stmt = executeSQL($sql, [$documentId, $userid, $userid]);
+    
+    // Bind result variables
+    $stmt->bind_result($id, $title, $type, $content, $readonly, $editing_id, $created_at, $updated_at);
+    
+    // Fetch the document
+    if ($stmt->fetch()) {
+        // Create an associative array manually
+        $document = [
+            'id' => $id,
+            'title' => $title,
+            'type' => $type,
+            'content' => $content,
+            'readonly' => $readonly,
+            'editing_id' => $editing_id,
+            'created_at' => $created_at,
+            'updated_at' => $updated_at
+        ];
+        
+        $stmt->close();
+        
+        return $document;
+    }
+    
+    $stmt->close();
+    
+    return ['error' => true, 'message' => 'Document not found or access denied'];
 }
 
 // Helper function to get user email

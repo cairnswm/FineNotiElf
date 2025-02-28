@@ -117,7 +117,7 @@ export const DocumentProvider = ({ children }) => {
         const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}/ownership`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'Authorization': `Bearer ${token}`,
             'App_id': tenant,
           }
@@ -136,7 +136,7 @@ export const DocumentProvider = ({ children }) => {
           const updateResponse = await fetch(`http://localhost/notielf/php/api.php/documentownership/${ownershipId}`, {
             method: 'PUT',
             headers: {
-              'Content-Type': 'application/json',
+              'Content-Type': 'application/json; charset=utf-8',
               'Authorization': `Bearer ${token}`,
               'App_id': tenant,
             },
@@ -162,7 +162,7 @@ export const DocumentProvider = ({ children }) => {
       const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           'Authorization': `Bearer ${token}`,
           'App_id': tenant,
         },
@@ -277,7 +277,7 @@ export const DocumentProvider = ({ children }) => {
         const response = await fetch('http://localhost/notielf/php/api.php/documents', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'Authorization': `Bearer ${token}`,
             'App_id': tenant,
           },
@@ -306,7 +306,7 @@ export const DocumentProvider = ({ children }) => {
             const ownershipResponse = await fetch('http://localhost/notielf/php/api.php/documentownership', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json; charset=utf-8',
                 'Authorization': `Bearer ${token}`,
                 'App_id': tenant,
               },
@@ -412,7 +412,7 @@ export const DocumentProvider = ({ children }) => {
         const response = await fetch('http://localhost/notielf/php/api.php/documents', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'Authorization': `Bearer ${token}`,
             'App_id': tenant,
           },
@@ -441,7 +441,7 @@ export const DocumentProvider = ({ children }) => {
             const ownershipResponse = await fetch('http://localhost/notielf/php/api.php/documentownership', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json; charset=utf-8',
                 'Authorization': `Bearer ${token}`,
                 'App_id': tenant,
               },

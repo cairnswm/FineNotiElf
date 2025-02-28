@@ -1,74 +1,93 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, ListGroup } from 'react-bootstrap';
-import { useDocuments } from '../contexts/DocumentContext';
+import { Modal, Button, Form, Alert } from 'react-bootstrap';
+import { useInvites } from '../contexts/InviteContext';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 export default function ShareModal({ show, onHide, document }) {
-  const { updateSharedWith } = useDocuments();
+  const { createInvite } = useInvites();
+  const { user } = useAuth();
   const [newEmail, setNewEmail] = useState('');
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAddEmail = (e) => {
+  const handleSendInvite = async (e) => {
     e.preventDefault();
-    if (newEmail && !document.sharedWith.includes(newEmail)) {
-      const updatedSharedWith = [...document.sharedWith, newEmail];
-      updateSharedWith(document.id, updatedSharedWith);
-      setNewEmail('');
+    setError('');
+    setSuccess('');
+    
+    if (!newEmail) {
+      setError('Please enter an email address');
+      return;
     }
-  };
 
-  const handleRemoveEmail = (emailToRemove) => {
-    const updatedSharedWith = document.sharedWith.filter(email => email !== emailToRemove);
-    updateSharedWith(document.id, updatedSharedWith);
+    setIsSubmitting(true);
+    
+    try {
+      await createInvite({
+        to_email: newEmail,
+        document_id: document.id,
+        from_name: user.name || user.email,
+        from_email: user.email,
+        reason: reason || 'You have been invited to collaborate on this document'
+      });
+      
+      setSuccess(`Invite sent to ${newEmail}`);
+      setNewEmail('');
+      setReason('');
+    } catch (err) {
+      setError('Failed to send invite. Please try again.');
+      console.error('Error sending invite:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Share Document</Modal.Title>
+        <Modal.Title>Share Document: {document?.name}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="mb-3">
-          <strong>Owner:</strong> {document?.owner}
+          <h5 className="text-primary">{document?.name}</h5>
         </div>
         
-        <Form onSubmit={handleAddEmail}>
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
+        
+        <Form onSubmit={handleSendInvite}>
           <Form.Group className="mb-3">
-            <Form.Label>Add Email</Form.Label>
-            <div className="d-flex gap-2">
-              <Form.Control
-                type="email"
-                placeholder="Enter email address"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-              />
-              <Button type="submit" size="sm" variant="primary">Add</Button>
-            </div>
+            <Form.Label>Email Address</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Enter email address"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+            />
           </Form.Group>
+          
+          <Form.Group className="mb-3">
+            <Form.Label>Reason for Sharing</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              placeholder="Enter a message for the recipient"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
+          </Form.Group>
+          
+          <Button 
+            type="submit" 
+            variant="primary" 
+            className="w-100"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Sending...' : 'Send Invite'}
+          </Button>
         </Form>
-
-        <div className="mt-4">
-          <h6>Shared with:</h6>
-          {document?.sharedWith.length === 0 ? (
-            <p className="text-muted">No one yet</p>
-          ) : (
-            <ListGroup>
-              {document?.sharedWith.map(email => (
-                <ListGroup.Item 
-                  key={email}
-                  className="d-flex justify-content-between align-items-center"
-                >
-                  {email}
-                  <Button 
-                    variant="outline-danger" 
-                    size="sm"
-                    onClick={() => handleRemoveEmail(email)}
-                  >
-                    Remove
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          )}
-        </div>
       </Modal.Body>
     </Modal>
   );

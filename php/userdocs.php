@@ -88,7 +88,7 @@ try {
                 )
                 FROM DocumentOwnership do
                 JOIN Documents d ON do.document_id = d.id
-                WHERE do.folder_id = fh.id AND (d.owner_id = ? OR d.owner_id = 0)
+                WHERE do.folder_id = fh.id AND (do.owner_id = ?)
             ),
             '[]'
         ) AS children

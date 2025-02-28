@@ -4,7 +4,7 @@ import EditingControls from "./EditingControls";
 import ShareModal from "./ShareModal";
 import NameChangeModal from "./folder/NameChangeModal";
 import { useDocuments } from "../contexts/DocumentContext";
-import { Gear, Pencil } from "react-bootstrap-icons";
+import { Pencil, Share } from "react-bootstrap-icons";
 
 export default function EditorHeader({
   document,
@@ -33,31 +33,29 @@ export default function EditorHeader({
           </Button>
         </div>
 
-        {isOwner && (
-          <>
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={() => setShowShareModal(true)}
-            >
-              <Gear /> Share
-            </Button>
-            <ShareModal
-              show={showShareModal}
-              onHide={() => setShowShareModal(false)}
-              document={document}
-            />
-          </>
-        )}
+        <Button
+          variant="outline-primary"
+          size="sm"
+          onClick={() => setShowShareModal(true)}
+          className="ms-2"
+        >
+          <Share /> Share
+        </Button>
       </div>
 
-      <div className="d-flex">
+      <div className="d-flex justify-content-between align-items-center mt-2">
         <EditingControls
           isReadOnly={document.readonly}
           onRequestEdit={onRequestEdit}
           onFinishEdit={onFinishEdit}
         />
       </div>
+
+      <ShareModal
+        show={showShareModal}
+        onHide={() => setShowShareModal(false)}
+        document={document}
+      />
       
       <NameChangeModal
         show={showNameChangeModal}
