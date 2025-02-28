@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json');
 
-require_once 'dbconnection.php';
-require_once './utils.php';
-require_once './security/security.config.php';
+include_once 'dbconnection.php';
+include_once './utils.php';
+include_once './security/security.config.php';
 
 echo "Issuer: $issuer\n";
 echo "Subject: $subject\n";

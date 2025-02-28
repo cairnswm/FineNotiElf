@@ -1,9 +1,17 @@
 <?php
+
+
+include_once __DIR__ . "./corsheaders.php";
+
 header('Content-Type: application/json');
 
-require_once 'dbconnection.php';
-require_once './utils.php';
-require_once './security/security.config.php';
+include_once 'dbconnection.php';
+include_once './utils.php';
+include_once './security/security.config.php';
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 
 $appid = getAppId();
 
@@ -88,15 +96,29 @@ try {
     ORDER BY fh.parent_id, fh.id";
     
     $stmt = executeSQL($sql, [$id, $id]);
-    $result = $stmt->get_result();
     
-    if ($result->num_rows === 0) {
-        throw new Exception("No document found with ID: $id");
-    }
+    // Bind result variables
+    $stmt->bind_result($id, $name, $type, $parent_id, $owner, $created_at, $updated_at, $children_json);
     
     // Fetch all documents in the hierarchy
     $documents = [];
-    while ($row = $result->fetch_assoc()) {
+    $hasResults = false;
+    
+    while ($stmt->fetch()) {
+        $hasResults = true;
+        
+        // Create an associative array manually
+        $row = [
+            'id' => $id,
+            'name' => $name,
+            'type' => $type,
+            'parent_id' => $parent_id,
+            'owner' => $owner,
+            'created_at' => $created_at,
+            'updated_at' => $updated_at,
+            'children' => $children_json
+        ];
+        
         // Convert children field from string to object
         if (isset($row['children']) && !empty($row['children'])) {
             $row['children'] = json_decode($row['children']);
@@ -108,6 +130,10 @@ try {
         }
         
         $documents[] = $row;
+    }
+    
+    if (!$hasResults) {
+        throw new Exception("No document found with ID: $id");
     }
     $stmt->close();
     
