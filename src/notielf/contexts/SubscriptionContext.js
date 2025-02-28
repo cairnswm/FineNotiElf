@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState } from 'react';
 const SubscriptionContext = createContext();
 
 export const SubscriptionProvider = ({ children }) => {
-  console.log("SubscriptionProvider.js");
   const [subscriptionLevel, setSubscriptionLevel] = useState('Family');
   const [additionalEmails, setAdditionalEmails] = useState(["yolande@cairns.co.za"]);
   const [expiryDate, setExpiryDate] = useState(null); // New state for expiry date

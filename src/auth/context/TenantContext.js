@@ -44,7 +44,6 @@ const TenantProvider = (props) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Tenant Params", data);
         setParams(data);
       })
       .catch((err) => {

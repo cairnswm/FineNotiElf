@@ -24,7 +24,6 @@ export const useAuth = () => {
 };
 
 const AuthenticationProvider = (props) => {
-  console.log("AuthContext.js");
   const { children, googleClientId, onError } = props;
   const [token, settoken] = useState();
   const [googleAccessToken, setgoogleAccessToken] = useState();

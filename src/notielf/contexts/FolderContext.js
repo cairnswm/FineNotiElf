@@ -251,8 +251,6 @@ export const FolderProvider = ({ children }) => {
         // Find the root items (folders with no parent)
         const rootItems = items.filter(item => item.parent_id === 0);
 
-        console.log("rootItems", rootItems);
-        
         // Process each item to add it to its parent's children array
         items.forEach(item => {
           if (item.parent_id !== 0 && itemMap[item.parent_id]) {

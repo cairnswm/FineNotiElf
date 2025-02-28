@@ -15,7 +15,6 @@ export const useDocuments = () => {
 };
 
 export const DocumentProvider = ({ children }) => {
-  console.log("DocumentProvider.js");
   const [activeDocument, setActiveDocument] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

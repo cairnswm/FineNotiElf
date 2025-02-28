@@ -58,7 +58,6 @@ const getBasename = () => {
 };
 
 const container = document.getElementById("root");
-console.log("index.js");
 console.log(container);
 const root = createRoot(container);
 

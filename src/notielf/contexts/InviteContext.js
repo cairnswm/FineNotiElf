@@ -23,7 +23,6 @@ export function useInvites() {
 }
 
 export function InviteProvider({ children }) {
-  console.log("InviteProvider.js");
   const { addDocument: addDocumentToShared } = useDocumentOperations();
   const { documents } = useDocuments();
   const { updateFolderStructure } = useFolders();
