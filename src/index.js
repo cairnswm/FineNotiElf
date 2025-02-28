@@ -9,47 +9,51 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 // Function to determine the base path dynamically
 const getBasename = () => {
-  // Get the script tag with the bundle.js source
-  const scriptTags = document.querySelectorAll('script');
-  let scriptSrc = '';
+  // First approach: Check if we're in a known subdirectory
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
   
+  // For specific domains, we can hardcode known subdirectories
+  if (hostname.includes('cairns.co.za') && pathname.startsWith('/notielf')) {
+    return '/notielf';
+  }
+  
+  // Second approach: Extract subdirectory from pathname
+  // This handles cases like https://example.com/subdir/
+  const pathParts = pathname.split('/').filter(Boolean);
+  
+  // If we have at least one path segment and we're not on a specific page
+  if (pathParts.length > 0) {
+    // Get the first segment as the potential subdirectory
+    const firstSegment = pathParts[0];
+    
+    // Check if this looks like a route rather than a subdirectory
+    // Routes typically don't have file extensions and match our known routes
+    const knownRoutes = ['login', 'register', 'home', 'profile', 'settings', 'properties', 'payment', 'forgot-password'];
+    
+    if (!knownRoutes.includes(firstSegment) && !firstSegment.includes('.')) {
+      return '/' + firstSegment;
+    }
+  }
+  
+  // Third approach: Try to find the script tag with bundle.js
+  const scriptTags = document.querySelectorAll('script');
   for (let i = 0; i < scriptTags.length; i++) {
     const src = scriptTags[i].getAttribute('src') || '';
     if (src.includes('bundle.js')) {
-      scriptSrc = src;
-      break;
+      // Extract the directory path from the script src
+      const srcPath = src.split('/');
+      srcPath.pop(); // Remove the filename
+      
+      if (srcPath.length > 0 && srcPath[0] !== '.') {
+        return '/' + srcPath.filter(segment => segment !== '.' && segment !== '..').join('/');
+      }
     }
   }
   
-  // If we found the script tag with bundle.js
-  if (scriptSrc) {
-    // Extract the path up to the last directory
-    const pathParts = scriptSrc.split('/');
-    // Remove the filename
-    pathParts.pop();
-    // Join the remaining parts to form the base path
-    return pathParts.join('/');
-  }
-  
-  // Fallback: use the current pathname up to the last segment
-  const pathname = window.location.pathname;
-  const pathSegments = pathname.split('/').filter(Boolean);
-  
-  // If there are segments, use all but the last one (assuming the last is a page route)
-  if (pathSegments.length > 0) {
-    // Check if the last segment looks like a route (no file extension)
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    if (!lastSegment.includes('.')) {
-      // Remove the last segment as it's likely a route
-      pathSegments.pop();
-    }
-    
-    if (pathSegments.length > 0) {
-      return '/' + pathSegments.join('/');
-    }
-  }
-  
-  // Default to empty string if we couldn't determine a base path
+  // If we couldn't determine a specific subdirectory, return empty string
+  // This will work for root deployments
+  console.log("Could not determine base path, defaulting to empty string");
   return '';
 };
 
