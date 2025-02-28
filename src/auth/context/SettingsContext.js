@@ -13,6 +13,7 @@ export const useSettings = () => {
 };
 
 export const SettingsProvider = ({ children }) => {
+  console.log("SettingsProvider.js");
   const [settings, setSettings] = useState([]);
   const { tenant } = useTenant();
   const { user } = useAuth();

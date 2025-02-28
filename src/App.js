@@ -17,6 +17,7 @@ import AppPage from './notielf/pages/AppPage';
 import LandingPage from './notielf/pages/Landing/LandingPage';
 
 const App = () => {
+  console.log("App.js");
   return (
     <>
       
