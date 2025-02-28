@@ -39,7 +39,7 @@ try {
     
     // Execute SQL query to get the user document hierarchy
     $sql = "WITH Recursive FolderHierarchy AS (
-        -- Base case: Get the root folder for the user
+        -- Base case: Get the root folder for the user and system folders
         SELECT 
             id,
             name,
@@ -49,7 +49,7 @@ try {
             created_at,
             updated_at
         FROM Folders
-        WHERE parent_id IS NULL AND owner_id = ?
+        WHERE parent_id IS NULL AND (owner_id = ? OR owner_id = 0)
 
         UNION ALL
 
@@ -88,12 +88,15 @@ try {
                 )
                 FROM DocumentOwnership do
                 JOIN Documents d ON do.document_id = d.id
-                WHERE do.folder_id = fh.id AND d.owner_id = ?
+                WHERE do.folder_id = fh.id AND (d.owner_id = ? OR d.owner_id = 0)
             ),
             '[]'
         ) AS children
     FROM FolderHierarchy fh
-    ORDER BY fh.parent_id, fh.id";
+    ORDER BY 
+        CASE WHEN fh.owner_id = 0 THEN 1 ELSE 0 END, 
+        fh.parent_id, 
+        fh.id";
     
     $stmt = executeSQL($sql, [$id, $id]);
     

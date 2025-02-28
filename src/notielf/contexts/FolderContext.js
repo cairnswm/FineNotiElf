@@ -245,7 +245,7 @@ export const FolderProvider = ({ children }) => {
           itemMap[item.id] = item;
         });
         
-        // Find the root items (My Documents and Shared with Me)
+        // Find the root items (folders with no parent)
         const rootItems = items.filter(item => item.parent_id === null);
         
         // Process each item to add it to its parent's children array
@@ -256,29 +256,41 @@ export const FolderProvider = ({ children }) => {
           }
         });
         
-        // Find "My Documents" folder to use as the root
-        const myDocuments = rootItems.find(item => item.name === "My Documents");
+        // Format document objects in children to match expected structure
+        const processDocuments = (node) => {
+          if (node.children && node.children.length > 0) {
+            node.children = node.children.map(child => {
+              if (child.type === 'document') {
+                return {
+                  ...child,
+                  owner: currentUser?.email || '',
+                  sharedWith: [],
+                  readonly: child.readonly === 0 ? false : true
+                };
+              }
+              return processDocuments(child);
+            });
+          }
+          return node;
+        };
+        
+        // Find "My Documents" folder to use as the root if it exists
+        // const myDocuments = rootItems.find(item => item.name === "My Documents" || item.parent_id === "");
+        const myDocuments = rootItems.find(item => item.parent_id === "");
         
         if (myDocuments) {
-          // Format document objects in children to match expected structure
-          const processDocuments = (node) => {
-            if (node.children && node.children.length > 0) {
-              node.children = node.children.map(child => {
-                if (child.type === 'document') {
-                  return {
-                    ...child,
-                    owner: currentUser?.email || '',
-                    sharedWith: [],
-                    readonly: child.readonly === 0 ? false : true
-                  };
-                }
-                return processDocuments(child);
-              });
-            }
-            return node;
-          };
-          
+          // Process the My Documents folder and return it
           return processDocuments(myDocuments);
+        } else if (rootItems.length > 0) {
+          // If "My Documents" doesn't exist but we have other root folders,
+          // create a virtual root folder containing all root folders
+          const virtualRoot = {
+            id: 0,
+            name: 'My Documents',
+            type: 'folder',
+            children: rootItems.map(processDocuments)
+          };
+          return virtualRoot;
         }
         
         return {
