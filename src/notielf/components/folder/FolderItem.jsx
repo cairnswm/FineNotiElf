@@ -3,12 +3,15 @@ import { ListGroup, Button, ButtonGroup } from "react-bootstrap";
 import { useDocuments } from "../../contexts/DocumentContext";
 import { useFolders } from "../../contexts/FolderContext";
 import NameChangeModal from "./NameChangeModal";
-import { File, Folder, Pencil, Plus, ListCheck } from "react-bootstrap-icons";
+import AddDocumentModal from "./adddocumentmodal";
+import { File, Folder, Pencil, Plus } from "react-bootstrap-icons";
 
 const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
   const { setActiveDocument, addDocument } = useDocuments();
   const { createFolder } = useFolders();
-  const [showModal, setShowModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [defaultDocumentType, setDefaultDocumentType] = useState("document");
 
   const handleClick = () => {
     if (item.type === "document") {
@@ -17,48 +20,25 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
   };
 
   const handleAddFile = () => {
-    addDocument(item.id, {
-      id: Date.now().toString(),
-      name: "New File",
-      type: "document",
-      content: "",
-      owner: "cairnswm@gmail.com",
-      sharedWith: [],
-      readonly: true,
-    });
+    setDefaultDocumentType("document");
+    setShowDocumentModal(true);
   };
 
-  const handleAddList = () => {
-    const initialListContent = {
-      settings: { 
-        id: Date.now(), 
-        hasDueDates: true, 
-        canDelete: true 
-      },
-      list: []
-    };
-    
-    addDocument(item.id, {
-      id: Date.now().toString(),
-      name: "New List",
-      type: "list",
-      content: JSON.stringify(initialListContent),
-      owner: "cairnswm@gmail.com",
-      sharedWith: [],
-      readonly: true,
-    });
-  };
 
   const handleAddFolder = () => {
     createFolder(item.id, "New Folder");
   };
 
-  const handleShowModal = () => {
-    setShowModal(true);
+  const handleShowNameModal = () => {
+    setShowNameModal(true);
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+  const handleCloseNameModal = () => {
+    setShowNameModal(false);
+  };
+
+  const handleCloseDocumentModal = () => {
+    setShowDocumentModal(false);
   };
 
   return (
@@ -77,7 +57,7 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
         <span className="me-2">📁</span>
         {item.name}
         <ButtonGroup className="ms-auto">
-          <Button variant="outline-primary" size="sm" onClick={handleShowModal}>
+          <Button variant="outline-primary" size="sm" onClick={handleShowNameModal}>
             <Pencil />
           </Button>
           <Button variant="outline-primary" size="sm" onClick={handleAddFolder}>
@@ -88,17 +68,20 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
             <Plus />
             <File />
           </Button>
-          <Button variant="outline-primary" size="sm" onClick={handleAddList}>
-            <Plus />
-            <ListCheck />
-          </Button>
         </ButtonGroup>
       </ListGroup.Item>
 
       <NameChangeModal
-        show={showModal}
-        handleClose={handleCloseModal}
+        show={showNameModal}
+        handleClose={handleCloseNameModal}
         item={item}
+      />
+
+      <AddDocumentModal
+        show={showDocumentModal}
+        handleClose={handleCloseDocumentModal}
+        folderId={item.id}
+        defaultType={defaultDocumentType}
       />
     </div>
   );
