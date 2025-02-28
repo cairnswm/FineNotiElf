@@ -77,9 +77,9 @@ root.render(
         onError={(message, error) => console.error(message, error)}
       >
         <SettingsProvider>
-          <HashRouter basename={basename}>
+          <BrowserRouter basename={basename}>
             <App />
-          </HashRouter>
+          </BrowserRouter>
         </SettingsProvider>
       </AuthenticationProvider>
     </TenantProvider>
