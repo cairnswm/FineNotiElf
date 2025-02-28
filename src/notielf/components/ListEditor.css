@@ -6,11 +6,31 @@
 }
 
 .list-editor .list-group-item {
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .list-editor .list-group-item:hover {
   background-color: rgba(0, 0, 0, 0.02);
+}
+
+.list-editor .list-group-item.dragging {
+  opacity: 0.5;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.list-editor .drag-handle {
+  cursor: grab;
+  color: #adb5bd;
+}
+
+.list-editor .drag-handle:hover {
+  color: #6c757d;
+}
+
+.list-editor .drag-handle:active {
+  cursor: grabbing;
 }
 
 .list-editor .form-control:focus {

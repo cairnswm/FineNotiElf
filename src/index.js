@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import App from "./App";
 import { AuthenticationProvider } from "./auth/context/AuthContext";
 import { TenantProvider } from "./auth/context/TenantContext";
@@ -77,9 +77,9 @@ root.render(
         onError={(message, error) => console.error(message, error)}
       >
         <SettingsProvider>
-          <BrowserRouter basename={basename}>
+          <HashRouter basename={basename}>
             <App />
-          </BrowserRouter>
+          </HashRouter>
         </SettingsProvider>
       </AuthenticationProvider>
     </TenantProvider>

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, ListGroup, InputGroup, FormControl, Badge, Modal, FormCheck } from 'react-bootstrap';
-import { PlusCircle, Trash, Calendar, Check2Circle, Pencil, GearFill, ArrowUp, ArrowDown } from 'react-bootstrap-icons';
+import { Form, Button, ListGroup } from 'react-bootstrap';
+import { PlusCircle, GearFill } from 'react-bootstrap-icons';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import ListItem from './list/listitem';
+import AddItemModal from './list/additemmodal';
+import EditItemModal from './list/edititemmodal';
+import SettingsModal from './list/settingsmodal';
 import { useDocuments } from '../contexts/DocumentContext';
 import './ListEditor.css';
 
@@ -225,6 +231,23 @@ export default function ListEditor({ document }) {
     setNewItemDueDate('');
   };
 
+  // Move item - for drag and drop reordering
+  const moveItem = (dragIndex, hoverIndex) => {
+    if (document.readonly) return;
+    
+    const dragItem = listData.list[dragIndex];
+    const updatedList = [...listData.list];
+    
+    // Remove the dragged item
+    updatedList.splice(dragIndex, 1);
+    // Insert it at the new position
+    updatedList.splice(hoverIndex, 0, dragItem);
+    
+    const updatedData = { ...listData, list: updatedList };
+    setListData(updatedData);
+    saveChanges(updatedData);
+  };
+
   // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -257,85 +280,26 @@ export default function ListEditor({ document }) {
         </div>
       </div>
 
-      {/* List of items */}
-      <ListGroup>
-        {listData.list.map((item) => (
-          <ListGroup.Item 
-            key={item.id}
-            className="d-flex align-items-center"
-          >
-            {/* Checkbox on the left */}
-            <FormCheck 
-              className="me-2"
-              checked={item.checked}
-              onChange={() => toggleChecked(item.id)}
-              disabled={document.readonly}
+      {/* List of items with drag and drop */}
+      <DndProvider backend={HTML5Backend}>
+        <ListGroup>
+          {listData.list.map((item, index) => (
+            <ListItem
+              key={item.id}
+              index={index}
+              item={item}
+              listSettings={listData.settings}
+              document={document}
+              toggleChecked={toggleChecked}
+              moveToTop={moveToTop}
+              moveToBottom={moveToBottom}
+              startEditing={startEditing}
+              deleteItem={deleteItem}
+              moveItem={moveItem}
             />
-            
-            {/* Item content */}
-            <div className="ms-2 me-auto">
-              <div 
-                className="fw-bold" 
-                style={item.checked ? { textDecoration: 'line-through' } : {}}
-              >
-                {item.name}
-              </div>
-              {item.description && (
-                <div style={item.checked ? { textDecoration: 'line-through' } : {}}>
-                  {item.description}
-                </div>
-              )}
-              {item.due && listData.settings.hasDueDates && (
-                <div className="mt-1">
-                  <Badge bg={new Date(item.due) < new Date() && !item.checked ? 'danger' : 'info'}>
-                    <Calendar className="me-1" /> {formatDate(item.due)}
-                  </Badge>
-                </div>
-              )}
-            </div>
-            
-            {/* Action buttons */}
-            <div className="d-flex">
-              {/* Up/Down arrow button */}
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
-                className="me-1"
-                onClick={() => item.checked ? moveToTop(item.id) : moveToBottom(item.id)}
-                disabled={document.readonly}
-                title={item.checked ? "Move to top" : "Move to bottom"}
-              >
-                {item.checked ? <ArrowUp /> : <ArrowDown />}
-              </Button>
-              
-              {!document.readonly && (
-                <>
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm" 
-                    className="me-1"
-                    onClick={() => startEditing(item)}
-                    disabled={document.readonly}
-                  >
-                    <Pencil />
-                  </Button>
-                  
-                  {listData.settings.canDelete && (
-                    <Button 
-                      variant="outline-danger" 
-                      size="sm"
-                      onClick={() => deleteItem(item.id)}
-                      disabled={document.readonly}
-                    >
-                      <Trash />
-                    </Button>
-                  )}
-                </>
-              )}
-            </div>
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+          ))}
+        </ListGroup>
+      </DndProvider>
       
       {listData.list.length === 0 && (
         <div className="text-center text-muted my-4">
@@ -343,166 +307,41 @@ export default function ListEditor({ document }) {
         </div>
       )}
 
-      {/* Add Item Modal */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Item</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Item Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newItemName}
-                onChange={(e) => setNewItemName(e.target.value)}
-                placeholder="Enter item name"
-              />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                value={newItemDescription}
-                onChange={(e) => setNewItemDescription(e.target.value)}
-                placeholder="Enter description (optional)"
-              />
-            </Form.Group>
-            
-            {listData.settings.hasDueDates && (
-              <Form.Group className="mb-3">
-                <Form.Label>Due Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={newItemDueDate}
-                  onChange={(e) => setNewItemDueDate(e.target.value)}
-                />
-              </Form.Group>
-            )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-            Cancel
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={addItem}
-            disabled={!newItemName.trim()}
-          >
-            Add Item
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Modals */}
+      <AddItemModal
+        show={showAddModal}
+        onHide={() => setShowAddModal(false)}
+        newItemName={newItemName}
+        setNewItemName={setNewItemName}
+        newItemDescription={newItemDescription}
+        setNewItemDescription={setNewItemDescription}
+        newItemDueDate={newItemDueDate}
+        setNewItemDueDate={setNewItemDueDate}
+        addItem={addItem}
+        hasDueDates={listData.settings.hasDueDates}
+      />
 
-      {/* Edit Item Modal */}
-      <Modal show={!!editingItemId} onHide={cancelEditing}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Item</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Item Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newItemName}
-                onChange={(e) => setNewItemName(e.target.value)}
-                placeholder="Enter item name"
-              />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                value={newItemDescription}
-                onChange={(e) => setNewItemDescription(e.target.value)}
-                placeholder="Enter description (optional)"
-              />
-            </Form.Group>
-            
-            {listData.settings.hasDueDates && (
-              <Form.Group className="mb-3">
-                <Form.Label>Due Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={newItemDueDate}
-                  onChange={(e) => setNewItemDueDate(e.target.value)}
-                />
-              </Form.Group>
-            )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={cancelEditing}>
-            Cancel
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={saveEditedItem}
-            disabled={!newItemName.trim()}
-          >
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <EditItemModal
+        show={!!editingItemId}
+        onHide={cancelEditing}
+        newItemName={newItemName}
+        setNewItemName={setNewItemName}
+        newItemDescription={newItemDescription}
+        setNewItemDescription={setNewItemDescription}
+        newItemDueDate={newItemDueDate}
+        setNewItemDueDate={setNewItemDueDate}
+        saveEditedItem={saveEditedItem}
+        hasDueDates={listData.settings.hasDueDates}
+      />
 
-      {/* Settings Modal */}
-      <Modal show={showSettingsModal} onHide={() => setShowSettingsModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>List Settings</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>ID</Form.Label>
-              <Form.Control
-                type="text"
-                value={listData.settings?.id || ''}
-                disabled
-              />
-              <Form.Text className="text-muted">
-                ID cannot be edited
-              </Form.Text>
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Check 
-                type="checkbox"
-                id="hasDueDates"
-                label="Enable Due Dates"
-                checked={settingsForm.hasDueDates}
-                onChange={(e) => setSettingsForm({...settingsForm, hasDueDates: e.target.checked})}
-              />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Check 
-                type="checkbox"
-                id="canDelete"
-                label="Allow Item Deletion"
-                checked={settingsForm.canDelete}
-                onChange={(e) => setSettingsForm({...settingsForm, canDelete: e.target.checked})}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowSettingsModal(false)}>
-            Cancel
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={saveSettings}
-          >
-            Save Settings
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <SettingsModal
+        show={showSettingsModal}
+        onHide={() => setShowSettingsModal(false)}
+        settingsForm={settingsForm}
+        setSettingsForm={setSettingsForm}
+        saveSettings={saveSettings}
+        listSettings={listData.settings}
+      />
     </div>
   );
 }
