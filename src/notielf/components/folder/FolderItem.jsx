@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { ListGroup, Button, ButtonGroup } from "react-bootstrap";
 import { useDocuments } from "../../contexts/DocumentContext";
+import { useFolders } from "../../contexts/FolderContext";
 import NameChangeModal from "./NameChangeModal";
 import { File, Folder, Pencil, Plus } from "react-bootstrap-icons";
 
 const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
   const { setActiveDocument, addDocument } = useDocuments();
+  const { createFolder } = useFolders();
   const [showModal, setShowModal] = useState(false);
 
   const handleClick = () => {
@@ -27,7 +29,7 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
   };
 
   const handleAddFolder = () => {
-    addDocument(item.id, { id: Date.now().toString(), name: "New Folder", type: "folder" });
+    createFolder(item.id, "New Folder");
   };
 
   const handleShowModal = () => {

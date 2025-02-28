@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -26,16 +26,35 @@ export default function Editor() {
     }
   }, [activeDocument?.id, setReadOnly]);
 
+  const [debouncedContent, setDebouncedContent] = useState('');
+  const debounceTimeoutRef = useRef(null);
+
+  const debouncedUpdateContent = useCallback(
+    (id, content) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      
+      setDebouncedContent(content);
+      
+      debounceTimeoutRef.current = setTimeout(() => {
+        updateDocumentContent(id, content);
+        debounceTimeoutRef.current = null;
+      }, 500); // 500ms debounce time
+    },
+    [updateDocumentContent]
+  );
+
   const onUpdate = useCallback(
     ({ editor }) => {
       if (activeDocument && !activeDocument.readonly) {
         const content = editor.getHTML();
         if (content !== activeDocument.content) {
-          updateDocumentContent(activeDocument.id, content);
+          debouncedUpdateContent(activeDocument.id, content);
         }
       }
     },
-    [activeDocument, updateDocumentContent]
+    [activeDocument, debouncedUpdateContent]
   );
 
   const editor = useEditor({
@@ -95,11 +114,14 @@ export default function Editor() {
     }
   }, [editor, activeDocument, setReadOnly]);
 
-  // Cleanup editor on unmount
+  // Cleanup editor and debounce timeout on unmount
   useEffect(() => {
     return () => {
       if (editor) {
         editor.destroy();
+      }
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
       }
     };
   }, [editor]);

@@ -108,7 +108,7 @@ $klokoconfigs = [
 ];
 
 // Security and hook functions
-function checkInviteSecurity($config, $id = null)
+function checkInviteSecurity($config, $id = null, $data = null)
 {
     global $userid;
     
@@ -120,7 +120,7 @@ function checkInviteSecurity($config, $id = null)
         $config['where']['from_id'] = $userid;
     }
     
-    return [$config, $id];
+    return [$config, $id, $data];
 }
 
 function beforeCreateInvite($config, $data)
@@ -133,7 +133,7 @@ function beforeCreateInvite($config, $data)
     return [$config, $data];
 }
 
-function checkFolderSecurity($config, $id = null)
+function checkFolderSecurity($config, $id = null, $data = null)
 {
     global $userid;
     
@@ -145,7 +145,7 @@ function checkFolderSecurity($config, $id = null)
         $config['where']['owner_id'] = $userid;
     }
     
-    return [$config, $id];
+    return [$config, $id, $data];
 }
 
 function beforeCreateFolder($config, $data)
@@ -184,7 +184,7 @@ function beforeCreateDocument($config, $data)
 }
 
 
-function checkDocumentOwnershipSecurity($config, $id = null)
+function checkDocumentOwnershipSecurity($config, $id = null, $data = null)
 {
     global $userid;
     
@@ -196,7 +196,7 @@ function checkDocumentOwnershipSecurity($config, $id = null)
         $config['where']['owner_id'] = $userid;
     }
     
-    return [$config, $id];
+    return [$config, $id, $data];
 }
 
 function beforeCreateDocumentOwnership($config, $data)
@@ -209,7 +209,7 @@ function beforeCreateDocumentOwnership($config, $data)
     return [$config, $data];
 }
 
-function checkUserDocumentsSecurity($config, $id = null)
+function checkUserDocumentsSecurity($config, $id = null, $data = null)
 {
     global $userid;
     
@@ -221,7 +221,7 @@ function checkUserDocumentsSecurity($config, $id = null)
         $config['where']['user_id'] = $userid;
     }
     
-    return [$config, $id];
+    return [$config, $id, $data];
 }
 
 function beforeCreateUserDocuments($config, $data)

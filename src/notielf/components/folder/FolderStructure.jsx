@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { ListGroup, Button, Badge } from "react-bootstrap";
 import { useDocuments } from "../../contexts/DocumentContext";
+import { useFolders } from "../../contexts/FolderContext";
 import { useInvites } from "../../contexts/InviteContext";
 import InvitesModal from "../InvitesModal";
 import Folder from "./Folder";
 
 export default function FolderStructure({onDocumentSelect}) {
   const { documents, moveDocument, addDocumentBefore } = useDocuments();
+  const { moveFolder } = useFolders();
   const { invites } = useInvites();
   const [showInvites, setShowInvites] = useState(false);
   const [draggedItemId, setDraggedItemId] = useState(null);
@@ -15,9 +17,35 @@ export default function FolderStructure({onDocumentSelect}) {
     setDraggedItemId(id);
   };
 
+  // Helper function to find an item by ID in the folder structure
+  const findItemById = (id, node = documents) => {
+    if (node.id === id) {
+      return node;
+    }
+    if (node.children) {
+      for (const child of node.children) {
+        const found = findItemById(id, child);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   const handleDrop = (targetFolderId) => {
     if (draggedItemId) {
-      moveDocument(draggedItemId, targetFolderId);
+      // Find the dragged item to determine if it's a folder or document
+      const draggedItem = findItemById(draggedItemId);
+      
+      if (draggedItem) {
+        if (draggedItem.type === 'folder') {
+          // Use moveFolder for folders
+          moveFolder(draggedItemId, targetFolderId);
+        } else {
+          // Use moveDocument for documents
+          moveDocument(draggedItemId, targetFolderId);
+        }
+      }
+      
       setDraggedItemId(null); // Reset dragged item ID
     }
   };

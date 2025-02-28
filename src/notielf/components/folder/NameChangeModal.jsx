@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDocuments } from '../../contexts/DocumentContext';
+import { useFolders } from '../../contexts/FolderContext';
 
 const NameChangeModal = ({ show, handleClose, item }) => {
   const { updateDocumentName } = useDocuments();
+  const { updateFolder } = useFolders();
   const [newName, setNewName] = useState(item.name);
 
   const handleSaveName = () => {
-    updateDocumentName(item.id, newName);
+    if (item.type === 'folder') {
+      updateFolder(item.id, { name: newName });
+    } else {
+      updateDocumentName(item.id, newName);
+    }
     handleClose();
   };
 
