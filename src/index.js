@@ -8,6 +8,8 @@ import { SettingsProvider } from "./auth/context/SettingsContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const container = document.getElementById("root");
+console.log("index.js");
+console.log(container);
 const root = createRoot(container);
 
 root.render(

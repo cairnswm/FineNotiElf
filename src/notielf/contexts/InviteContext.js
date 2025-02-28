@@ -12,6 +12,7 @@ export function useInvites() {
 }
 
 export function InviteProvider({ children }) {
+  console.log("InviteProvider.js");
   const { addDocument } = useDocumentOperations();
   const [invites, setInvites] = useState([
     {

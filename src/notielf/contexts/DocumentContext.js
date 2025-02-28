@@ -12,6 +12,7 @@ export function useDocuments() {
 }
 
 export function DocumentProvider({ children }) {
+  console.log("DocumentProvider.js");
   const [documents, setDocuments] = useState({
     id: 0,
     name: 'My Documents',
