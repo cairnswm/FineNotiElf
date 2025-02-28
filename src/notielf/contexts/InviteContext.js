@@ -16,24 +16,24 @@ export function InviteProvider({ children }) {
   const { addDocument } = useDocumentOperations();
   const [invites, setInvites] = useState([
     {
-      id: 'inv-1',
-      documentId: 'doc-123',
-      documentTitle: 'Family Vacation Plans',
-      from: {
-        name: 'Yolande Cairns',
-        email: 'yolande@cairns.co.za'
-      },
+      id: 1,
+      document_title: 'Family Vacation Plans',
+      document_id: 123,
+      to_email: 'user@example.com',
+      from_id: 2030,
+      name: 'Yolande Cairns',
+      email: 'yolande@cairns.co.za',
       reason: 'Please review our upcoming vacation plans and add your suggestions.',
       createdAt: new Date('2023-11-20').toISOString()
     },
     {
-      id: 'inv-2',
-      documentId: 'doc-456',
-      documentTitle: 'Christmas Party Menu',
-      from: {
-        name: 'John Smith',
-        email: 'john@example.com'
-      },
+      id: 2,
+      document_title: 'Christmas Party Menu',      
+      document_id: 456,
+      to_email: 'user@example.com',
+      from_id: 2031,
+      name: 'John Smith',
+      email: 'john@example.com',
       reason: 'Need your input on the menu planning.',
       createdAt: new Date('2023-11-21').toISOString()
     }
@@ -44,17 +44,17 @@ export function InviteProvider({ children }) {
     if (invite) {
       // Create new document from invite
       const newDocument = {
-        id: invite.documentId,
-        name: invite.documentTitle,
+        id: `doc-${invite.document_id}`,
+        name: invite.document_title,
         type: 'document',
         content: `<p>${invite.reason}</p>`,
-        owner: invite.from.email,
+        owner: invite.email,
         sharedWith: [],
         readonly: true,
         createdAt: new Date().toISOString(),
         sharedBy: {
-          name: invite.from.name,
-          email: invite.from.email
+          name: invite.name,
+          email: invite.email
         }
       };
 

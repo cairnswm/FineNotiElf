@@ -30,9 +30,9 @@ export default function InvitesModal({ show, onHide }) {
               >
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <div>
-                    <h5 className="mb-1">{invite.documentTitle}</h5>
+                    <h5 className="mb-1">{invite.document_title}</h5>
                     <p className="text-muted mb-0">
-                      From: {invite.from.name} ({invite.from.email})
+                      From: {invite.name} ({invite.email})
                     </p>
                   </div>
                   <Badge bg="secondary">
