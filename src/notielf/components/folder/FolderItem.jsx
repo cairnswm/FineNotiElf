@@ -4,7 +4,7 @@ import { useDocuments } from "../../contexts/DocumentContext";
 import { useFolders } from "../../contexts/FolderContext";
 import NameChangeModal from "./NameChangeModal";
 import AddDocumentModal from "./adddocumentmodal";
-import { File, Folder, Pencil, Plus } from "react-bootstrap-icons";
+import { File, Folder, FolderFill, Pencil, Plus } from "react-bootstrap-icons";
 
 const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
   const { setActiveDocument, addDocument } = useDocuments();
@@ -54,21 +54,23 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
         draggable
         onDragStart={() => onDragStart(item.id)}
       >
-        <span className="me-2">📁</span>
+        <span className="me-2"><FolderFill style={{color: "#FDDA0D"}} /></span>
         {item.name}
-        <ButtonGroup className="ms-auto">
-          <Button variant="outline-primary" size="sm" onClick={handleShowNameModal}>
-            <Pencil />
-          </Button>
-          <Button variant="outline-primary" size="sm" onClick={handleAddFolder}>
-            <Plus />
-            <Folder />
-          </Button>
-          <Button variant="outline-primary" size="sm" onClick={handleAddFile}>
-            <Plus />
-            <File />
-          </Button>
-        </ButtonGroup>
+        {item.id > 0 && (
+          <ButtonGroup className="ms-auto">
+            <Button variant="outline-primary" size="sm" onClick={handleShowNameModal}>
+              <Pencil />
+            </Button>
+            <Button variant="outline-primary" size="sm" onClick={handleAddFolder}>
+              <Plus />
+              <Folder />
+            </Button>
+            <Button variant="outline-primary" size="sm" onClick={handleAddFile}>
+              <Plus />
+              <File />
+            </Button>
+          </ButtonGroup>
+        )}
       </ListGroup.Item>
 
       <NameChangeModal
