@@ -36,7 +36,7 @@ module.exports = {
     hot: true,
     open: true,
     port: 3202,
-    publicPath: '/'
+    publicPath: './'
   },
   plugins: [
     new HtmlWebpackPlugin({
