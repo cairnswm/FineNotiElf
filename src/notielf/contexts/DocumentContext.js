@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
+import { useTenant } from '../hooks/useTenant';
 
 const DocumentContext = createContext();
 
@@ -75,9 +76,12 @@ export function DocumentProvider({ children }) {
   });
 
   const [activeDocument, setActiveDocument] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, token } = useAuth();
+  const { tenant } = useTenant();
 
   const updateDocumentContent = useCallback((id, newContent) => {
     setDocuments(prevDocuments => {
@@ -290,6 +294,40 @@ export function DocumentProvider({ children }) {
   }, []);
 
 	const isOwner = activeDocument?.owner === currentUser.email;
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/documents`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'app_id': tenant,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setDocuments(data);
+      } catch (err) {
+        console.error('Failed to fetch documents:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUser && tenant) {
+      fetchDocuments();
+    }
+  }, [currentUser, tenant, token]);
 
   const value = {
     documents,
