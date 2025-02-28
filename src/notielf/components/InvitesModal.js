@@ -3,7 +3,7 @@ import { Modal, Button, ListGroup, Badge } from 'react-bootstrap';
 import { useInvites } from '../contexts/InviteContext';
 
 export default function InvitesModal({ show, onHide }) {
-  const { invites, acceptInvite, declineInvite } = useInvites();
+  const { invites, acceptInvite, declineInvite, loading, error } = useInvites();
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -19,7 +19,11 @@ export default function InvitesModal({ show, onHide }) {
         <Modal.Title>Document Invites</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {invites.length === 0 ? (
+        {loading ? (
+          <p className="text-center py-4">Loading invites...</p>
+        ) : error ? (
+          <p className="text-danger text-center py-4">{error}</p>
+        ) : invites.length === 0 ? (
           <p className="text-muted text-center py-4">No pending invites</p>
         ) : (
           <ListGroup>
