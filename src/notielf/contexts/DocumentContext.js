@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
-import { useTenant } from '../hooks/useTenant';
+import { useTenant } from '../../auth/hooks/useTenant';
+import { combineUrlAndPath } from '../../auth/utils/combineUrlAndPath';
 
 const DocumentContext = createContext();
 
@@ -297,11 +298,12 @@ export function DocumentProvider({ children }) {
 
   useEffect(() => {
     const fetchDocuments = async () => {
+      console.log("fetchDocuments", tenant, token);
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/documents`, {
+        const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API,"userdocs.php"), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -324,6 +326,7 @@ export function DocumentProvider({ children }) {
       }
     };
 
+    console.log("Getting", currentUser, tenant, token);
     if (currentUser && tenant) {
       fetchDocuments();
     }

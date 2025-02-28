@@ -113,6 +113,7 @@ function validate_jwt($token, $time = false, $aud = null)
             $payload = json_decode(base64url_decode($section[1]));
             $now = new DateTime();
             if ($payload->exp < $now->getTimestamp()) {
+                echo "Token has expired";
                 $jwtError[] = "Token has expired";
                 return false;
             }
@@ -120,12 +121,14 @@ function validate_jwt($token, $time = false, $aud = null)
         if ($aud != NULL) {
             $payload = json_decode(base64url_decode($section[1]));
             if ($payload->aud != $aud) {
+                echo "Invalid Audience, $payload->aud, not $aud expected";
                 $jwtError[] = "Invalid Audience, $payload->aud, not $aud expected";
                 return false;
             }
         }
         return true;
     } else {
+        echo "Signature does not match";
         $jwtError[] = "Signature does not match";
         return false;
     }

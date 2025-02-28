@@ -3,12 +3,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
+module.exports = (env, argv) => {
+  const isProduction = argv.mode === 'production';
+  
+  return {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: './',
+    publicPath: isProduction ? './' : '/',
     clean: true
   },
   module: {
@@ -35,8 +38,11 @@ module.exports = {
     historyApiFallback: true,
     hot: true,
     open: true,
-    port: 3202,
-    publicPath: './'
+    port: 3203,
+    static: {
+      directory: path.join(__dirname, 'public'),
+      publicPath: '/'
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -58,4 +64,5 @@ module.exports = {
       ]
     })
   ]
-}
+  };
+};
