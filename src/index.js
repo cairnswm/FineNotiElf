@@ -14,6 +14,7 @@ const root = createRoot(container);
 
 root.render(
   <React.StrictMode>
+    LOADED SCRIPTS
     <TenantProvider
       applicationId="d814e6e1-bfa5-11ef-b768-1a220d8ac2c9"
       config={{}}
