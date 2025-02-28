@@ -26,7 +26,6 @@ function GAPIcreate($configs, $endpoint, $data)
 
 function GAPIupdate($configs, $endpoint, $id, $data)
 {
-
     if (!isset($configs[$endpoint])) {
         throw new Exception("Endpoint not found");
     }

@@ -79,6 +79,7 @@ function CreateData($config, $data)
 
     // Execute after create function if it exists
     if (isset($config['aftercreate']) && function_exists($config['aftercreate'])) {
+        var_dump($data);
         $res = call_user_func($config['aftercreate'], $config, $data, $new_record);
         if (is_array($res)) {
             $new_record = $res[2];
@@ -178,8 +179,11 @@ function CreateDataBulk($config, $data)
 
 function UpdateData($config, $id, $data)
 {
+
     global $gapiconn;
     $updated_record = null;
+
+    // var_dump("DATA BEFORE:", $data);
 
     // Check if update operation is allowed
     if (!isset($config['update'])) {
@@ -190,8 +194,15 @@ function UpdateData($config, $id, $data)
     if (isset($config['beforeupdate']) && function_exists($config['beforeupdate'])) {
         $res = call_user_func($config['beforeupdate'], $config, $id, $data);
         $config = $res[0];
-        $data = $res[1];
+        $data = $res[2];
     }
+
+    
+//     var_dump("DATA:",$data);
+// echo "\n";
+// var_dump(  "CONFIG:", $config['update']);
+// echo "\n";
+// echo "ID", $id, "\n";
 
     // Check if 'update' is a function name
     if (is_string($config['update']) && function_exists($config['update'])) {
@@ -209,6 +220,9 @@ function UpdateData($config, $id, $data)
         $fields = implode(" = ?, ", $updateFields) . " = ?";
 
         $query = "UPDATE " . $config['tablename'] . " SET $fields WHERE " . $config['key'] . " = ?";
+
+        
+        // echo "Query: ", $query, "\n";
 
         $stmt = $gapiconn->prepare($query);
 

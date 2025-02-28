@@ -158,7 +158,7 @@ function beforeCreateFolder($config, $data)
     return [$config, $data];
 }
 
-function checkDocumentSecurity($config, $id = null)
+function checkDocumentSecurity($config, $id = null, $data = null)
 {
     global $userid;
     
@@ -170,7 +170,7 @@ function checkDocumentSecurity($config, $id = null)
         $config['where']['owner_id'] = $userid;
     }
     
-    return [$config, $id];
+    return [$config, $id, $data];
 }
 
 function beforeCreateDocument($config, $data)
@@ -182,6 +182,7 @@ function beforeCreateDocument($config, $data)
     
     return [$config, $data];
 }
+
 
 function checkDocumentOwnershipSecurity($config, $id = null)
 {

@@ -107,7 +107,33 @@ export function DocumentProvider({ children }) {
       }
       return prev;
     });
-  }, []);
+
+    // Save document content to the server
+    const saveDocumentContent = async () => {
+      try {
+        const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'App_id': tenant,
+          },
+          body: JSON.stringify({
+            content: newContent
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error updating document: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Failed to update document content:', error);
+        setError(error.message);
+      }
+    };
+
+    saveDocumentContent();
+  }, [token, tenant]);
 
   const updateDocumentName = useCallback((id, newName) => {
     setDocuments(prevDocuments => {
@@ -132,7 +158,33 @@ export function DocumentProvider({ children }) {
       }
       return prev;
     });
-  }, []);
+
+    // Save document title to the server
+    const saveDocumentTitle = async () => {
+      try {
+        const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'App_id': tenant,
+          },
+          body: JSON.stringify({
+            title: newName
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error updating document title: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Failed to update document title:', error);
+        setError(error.message);
+      }
+    };
+
+    saveDocumentTitle();
+  }, [token, tenant]);
 
   const updateSharedWith = useCallback((id, sharedWith) => {
     setDocuments(prevDocuments => {
@@ -182,7 +234,33 @@ export function DocumentProvider({ children }) {
       }
       return prev;
     });
-  }, []);
+
+    // Save readonly status to the server
+    const saveReadOnlyStatus = async () => {
+      try {
+        const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'App_id': tenant,
+          },
+          body: JSON.stringify({
+            readonly: readonly ? 1 : 0
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error updating document readonly status: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Failed to update document readonly status:', error);
+        setError(error.message);
+      }
+    };
+
+    saveReadOnlyStatus();
+  }, [token, tenant]);
 
   const moveDocument = useCallback((id, targetFolderId) => {
     setDocuments(prevDocuments => {
@@ -247,13 +325,64 @@ export function DocumentProvider({ children }) {
       }
       return addToTarget(updatedDocuments);
     });
-  }, []);
+
+    // Update DocumentOwnership record on the server
+    const updateDocumentOwnership = async () => {
+      try {
+        // First, find the DocumentOwnership record for this document
+        const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}/ownership`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'App_id': tenant,
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error fetching document ownership: ${response.statusText}`);
+        }
+
+        const ownershipData = await response.json();
+        
+        if (ownershipData && ownershipData.length > 0) {
+          const ownershipId = ownershipData[0].id;
+          
+          // Update the folder_id in the DocumentOwnership record
+          const updateResponse = await fetch(`http://localhost/notielf/php/api.php/documentownership/${ownershipId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'App_id': tenant,
+            },
+            body: JSON.stringify({
+              folder_id: targetFolderId
+            })
+          });
+
+          if (!updateResponse.ok) {
+            throw new Error(`Error updating document ownership: ${updateResponse.statusText}`);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to update document ownership:', error);
+        setError(error.message);
+      }
+    };
+
+    updateDocumentOwnership();
+  }, [token, tenant]);
 
   const addDocument = useCallback((folderId, newDocument) => {
+    // Generate a temporary ID for immediate UI update
+    const tempId = Math.floor(Date.now());
+    
+    // Update local state first for responsive UI
     setDocuments(prevDocuments => {
       const addToFolder = (node) => {
         if (node.id === folderId) {
-          const updatedChildren = [...(node.children || []), { ...newDocument, id: Math.floor(Date.now()) }];
+          const updatedChildren = [...(node.children || []), { ...newDocument, id: tempId }];
           return { ...node, children: updatedChildren };
         }
         if (node.children) {
@@ -264,21 +393,145 @@ export function DocumentProvider({ children }) {
         }
         return node;
       };
-      const updatedDocuments = addToFolder(prevDocuments);
-      setActiveDocument({ ...newDocument, id: Math.floor(Date.now()) }); // Set the new document as active
-      return updatedDocuments;
+      return addToFolder(prevDocuments);
     });
-  }, []);
+    
+    // Set the new document as active
+    setActiveDocument({ ...newDocument, id: tempId });
+    
+    // Create document on the server
+    const createDocumentOnServer = async () => {
+      try {
+        // Step 1: Create the document
+        const response = await fetch('http://localhost/notielf/php/api.php/documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'App_id': tenant,
+          },
+          body: JSON.stringify({
+            title: newDocument.name,
+            type: newDocument.type,
+            content: newDocument.content || '',
+            readonly: newDocument.readonly || false,
+            editing_id: null
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error creating document: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        // API returns an array with the document details
+        if (result && Array.isArray(result) && result.length > 0) {
+          const createdDoc = result[0];
+          
+          // Update the document with the server-generated ID
+          if (createdDoc && createdDoc.id) {
+            // Step 2: Create the DocumentOwnership record to link document to folder
+            const ownershipResponse = await fetch('http://localhost/notielf/php/api.php/documentownership', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'App_id': tenant,
+              },
+              body: JSON.stringify({
+                document_id: createdDoc.id,
+                folder_id: folderId,
+                readonly: newDocument.readonly || false
+              })
+            });
+            
+            if (!ownershipResponse.ok) {
+              console.error('Failed to create document ownership record:', ownershipResponse.statusText);
+            }
+            
+            setDocuments(prevDocuments => {
+              const updateId = (node) => {
+                if (node.children) {
+                  return {
+                    ...node,
+                    children: node.children.map(child => 
+                      child.id === tempId ? { 
+                        ...child, 
+                        id: createdDoc.id,
+                        // Update other properties from the server response
+                        name: createdDoc.title,
+                        type: createdDoc.type.toLowerCase(),
+                        content: createdDoc.content,
+                        readonly: createdDoc.readonly === 0 ? false : true
+                      } : updateId(child)
+                    )
+                  };
+                }
+                return node;
+              };
+              return updateId(prevDocuments);
+            });
+            
+            // Update active document if it's the one we just created
+            setActiveDocument(prev => {
+              if (prev && prev.id === tempId) {
+                return { 
+                  ...prev, 
+                  id: createdDoc.id,
+                  name: createdDoc.title,
+                  type: createdDoc.type.toLowerCase(),
+                  content: createdDoc.content,
+                  readonly: createdDoc.readonly === 0 ? false : true
+                };
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create document on server:', error);
+        setError(error.message);
+      }
+    };
+
+    createDocumentOnServer();
+  }, [token, tenant]);
 
   const addDocumentBefore = useCallback((targetFolderId, newDocument) => {
+    // Generate a temporary ID for immediate UI update
+    const tempId = Math.floor(Date.now());
+    
+    // Find the parent folder of the target
+    let parentFolderId = null;
+    
+    const findParentFolder = (node, targetId) => {
+      if (node.children) {
+        for (const child of node.children) {
+          if (child.id === targetId) {
+            parentFolderId = node.id;
+            return true;
+          }
+          if (findParentFolder(child, targetId)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    // Update local state first for responsive UI
     setDocuments(prevDocuments => {
+      // Find the parent folder ID
+      findParentFolder(prevDocuments, targetFolderId);
+      
       const addBefore = (node) => {
         if (node.children) {
           const targetIndex = node.children.findIndex(child => child.id === targetFolderId);
           if (targetIndex !== -1) {
             const updatedChildren = [
               ...node.children.slice(0, targetIndex),
-              { ...newDocument, id: Math.floor(Date.now()) },
+              { ...newDocument, id: tempId },
               ...node.children.slice(targetIndex)
             ];
             return { ...node, children: updatedChildren };
@@ -292,7 +545,108 @@ export function DocumentProvider({ children }) {
       };
       return addBefore(prevDocuments);
     });
-  }, []);
+    
+    // Set the new document as active
+    setActiveDocument({ ...newDocument, id: tempId });
+    
+    // Create document on the server
+    const createDocumentOnServer = async () => {
+      try {
+        // Step 1: Create the document
+        const response = await fetch('http://localhost/notielf/php/api.php/documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'App_id': tenant,
+          },
+          body: JSON.stringify({
+            title: newDocument.name,
+            type: newDocument.type,
+            content: newDocument.content || '',
+            readonly: newDocument.readonly || false,
+            editing_id: null
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error creating document: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        // API returns an array with the document details
+        if (result && Array.isArray(result) && result.length > 0) {
+          const createdDoc = result[0];
+          
+          // Update the document with the server-generated ID
+          if (createdDoc && createdDoc.id) {
+            // Step 2: Create the DocumentOwnership record to link document to folder
+            const ownershipResponse = await fetch('http://localhost/notielf/php/api.php/documentownership', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'App_id': tenant,
+              },
+              body: JSON.stringify({
+                document_id: createdDoc.id,
+                folder_id: parentFolderId,
+                readonly: newDocument.readonly || false
+              })
+            });
+            
+            if (!ownershipResponse.ok) {
+              console.error('Failed to create document ownership record:', ownershipResponse.statusText);
+            }
+            
+            setDocuments(prevDocuments => {
+              const updateId = (node) => {
+                if (node.children) {
+                  return {
+                    ...node,
+                    children: node.children.map(child => 
+                      child.id === tempId ? { 
+                        ...child, 
+                        id: createdDoc.id,
+                        // Update other properties from the server response
+                        name: createdDoc.title,
+                        type: createdDoc.type.toLowerCase(),
+                        content: createdDoc.content,
+                        readonly: createdDoc.readonly === 0 ? false : true
+                      } : updateId(child)
+                    )
+                  };
+                }
+                return node;
+              };
+              return updateId(prevDocuments);
+            });
+            
+            // Update active document if it's the one we just created
+            setActiveDocument(prev => {
+              if (prev && prev.id === tempId) {
+                return { 
+                  ...prev, 
+                  id: createdDoc.id,
+                  name: createdDoc.title,
+                  type: createdDoc.type.toLowerCase(),
+                  content: createdDoc.content,
+                  readonly: createdDoc.readonly === 0 ? false : true
+                };
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create document on server:', error);
+        setError(error.message);
+      }
+    };
+
+    createDocumentOnServer();
+  }, [token, tenant]);
 
 	const isOwner = activeDocument?.owner === currentUser.email;
 
