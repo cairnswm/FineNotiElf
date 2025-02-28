@@ -3,7 +3,7 @@ import { ListGroup, Button, ButtonGroup } from "react-bootstrap";
 import { useDocuments } from "../../contexts/DocumentContext";
 import { useFolders } from "../../contexts/FolderContext";
 import NameChangeModal from "./NameChangeModal";
-import { File, Folder, Pencil, Plus } from "react-bootstrap-icons";
+import { File, Folder, Pencil, Plus, ListCheck } from "react-bootstrap-icons";
 
 const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
   const { setActiveDocument, addDocument } = useDocuments();
@@ -22,6 +22,27 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
       name: "New File",
       type: "document",
       content: "",
+      owner: "cairnswm@gmail.com",
+      sharedWith: [],
+      readonly: true,
+    });
+  };
+
+  const handleAddList = () => {
+    const initialListContent = {
+      settings: { 
+        id: Date.now(), 
+        hasDueDates: true, 
+        canDelete: true 
+      },
+      list: []
+    };
+    
+    addDocument(item.id, {
+      id: Date.now().toString(),
+      name: "New List",
+      type: "list",
+      content: JSON.stringify(initialListContent),
       owner: "cairnswm@gmail.com",
       sharedWith: [],
       readonly: true,
@@ -66,6 +87,10 @@ const FolderItem = ({ item, depth = 0, onDragStart, onDrop, onDragOver }) => {
           <Button variant="outline-primary" size="sm" onClick={handleAddFile}>
             <Plus />
             <File />
+          </Button>
+          <Button variant="outline-primary" size="sm" onClick={handleAddList}>
+            <Plus />
+            <ListCheck />
           </Button>
         </ButtonGroup>
       </ListGroup.Item>

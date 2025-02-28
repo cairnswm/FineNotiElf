@@ -1,6 +1,7 @@
 import React from "react";
 import { ListGroup } from "react-bootstrap";
 import { useDocuments } from "../../contexts/DocumentContext";
+import { FileEarmark, ListCheck } from "react-bootstrap-icons";
 
 const FileItem = ({ item, onDragStart, onDocumentSelect }) => {
   const { setActiveDocument } = useDocuments();
@@ -21,7 +22,9 @@ const FileItem = ({ item, onDragStart, onDocumentSelect }) => {
       draggable
       onDragStart={() => onDragStart(item.id)}
     >
-      <span className="me-2">📄</span>
+      <span className="me-2">
+        {item.type === 'list' ? <ListCheck className="text-primary" /> : <FileEarmark />}
+      </span>
       {item.name}
     </ListGroup.Item>
   );
