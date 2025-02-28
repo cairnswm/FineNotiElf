@@ -1,0 +1,69 @@
+.app-container {
+  display: flex;
+  position: relative;
+  height: 100vh; /* Set height to full viewport height */
+}
+
+.folder-pane {
+  position: relative; /* Change to relative positioning */
+  height: 100%;
+  background-color: #f0f0f0; /* Background color for the folder pane */
+  transition: transform 0.3s ease; /* Smooth transition for sliding */
+  transform: translateX(-100%); /* Initially off-screen */
+  padding: 0.5rem; /* Add padding to the folder pane */
+}
+
+.folder-pane.visible {
+  transform: translateX(0); /* Slide in when visible */
+}
+
+.toggle-button {
+  position: absolute;
+  top: 10px;
+  left: 0px;
+  background-color: var(--bs-primary); /* Button color */
+  color: white; /* Button text color */
+  border: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding: 4px;
+  cursor: pointer;
+  z-index: 1000; /* Ensure button is above other elements */
+}
+
+.resizer {
+  cursor: ew-resize; /* Change cursor to indicate resizing */
+  width: 5px; /* Width of the resizer */
+  background-color: lightgrey; /* Change color of the resizer to red */
+  height: 100%; /* Full height */
+  z-index: 1; /* Ensure resizer is above other elements */
+}
+
+.editor-pane {
+  flex-grow: 1;
+  padding: 0.5rem; /* Add padding to the editor pane */
+}
+
+.editor-pane.full-width {
+  width: 100%; /* Ensure full width when folder pane is hidden */
+}
+
+/* Media query to hide the toggle button on larger screens */
+@media (min-width: 768px) {
+  .toggle-button {
+    display: none; /* Hide toggle button */
+  }
+
+  .folder-pane {
+    transform: translateX(0); /* Always visible on larger screens */
+  }
+}
+
+.mobile-container .editor-header {
+  padding-left: 2rem;
+}
+
+.btn-sm {
+  padding: 0.1rem 0.2rem; 
+  font-size: 0.75rem;
+}

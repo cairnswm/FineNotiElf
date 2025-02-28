@@ -1,0 +1,28 @@
+/* ... existing styles ... */
+
+/* Add these new styles for task lists */
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5em;
+}
+
+ul[data-type="taskList"] input[type="checkbox"] {
+  margin-right: 0.5em;
+  margin-top: 0.3em;
+  cursor: pointer;
+}
+
+ul[data-type="taskList"] li > div {
+  flex: 1;
+}
+
+ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  color: #999;
+}

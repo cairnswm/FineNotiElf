@@ -1,0 +1,48 @@
+:root {
+  --bs-primary: #dc3545;
+  --bs-primary-rgb: 220, 53, 69;
+  --bs-secondary: #198754;
+  --bs-secondary-rgb: 25, 135, 84;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: #bb2d3b;
+  --bs-btn-hover-border-color: #b02a37;
+  --bs-btn-active-bg: #b02a37;
+  --bs-btn-active-border-color: #a52834;
+}
+
+.btn-sm {
+  --bs-btn-padding-y: 0.1rem;
+  --bs-btn-padding-x: 0.35rem;
+  --bs-btn-font-size: 0.75rem;
+}
+
+.editor-menu .btn-sm i {
+  font-size: 0.75rem;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.text-secondary {
+  color: var(--bs-secondary) !important;
+}
+
+.hero-image {
+  max-height: 400px;
+  width: auto;
+  margin: 0 auto;
+  display: block;
+}

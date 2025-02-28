@@ -1,0 +1,40 @@
+.editor-menu {
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+}
+
+.editor-menu .btn-group {
+  margin-right: 0.5rem;
+}
+
+.editor-menu .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-menu .btn.active {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+
+.editor-menu .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editor-menu .btn i {
+  font-size: 1rem;
+}
+
+/* Emoji picker overlay styles */
+.EmojiPickerReact {
+  --epr-hover-bg-color: var(--bs-primary-rgb);
+  --epr-focus-bg-color: var(--bs-primary-rgb);
+  --epr-highlight-color: var(--bs-primary);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1) !important;
+}
