@@ -81,7 +81,7 @@ export default function FolderStructure({onDocumentSelect}) {
       </div>
 
       <ListGroup>
-        {documents.children.map((item) => (
+        {documents?.children && documents.children.map((item) => (
           <Folder
             key={item.id}
             item={item}

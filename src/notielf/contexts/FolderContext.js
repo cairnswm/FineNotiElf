@@ -13,66 +13,7 @@ export const useFolders = () => {
 };
 
 export const FolderProvider = ({ children }) => {
-  const [folders, setFolders] = useState({
-    id: 0,
-    name: 'My Documents',
-    type: 'folder',
-    children: [
-      {
-        id: 1,
-        name: 'Shopping Lists',
-        type: 'folder',
-        children: [
-          {
-            id: 11,
-            name: 'Groceries',
-            type: 'document',
-            content: '<p>🥑 Avocados</p><p>🥖 Bread</p><p>🥛 Milk</p>',
-            owner: 'cairnswm@gmail.com',
-            sharedWith: [],
-            readonly: true
-          },
-          {
-            id: 12,
-            name: 'Christmas Gifts',
-            type: 'document',
-            content: '<p>Gift ideas for family:</p><ul><li>Mom - Cookbook</li><li>Dad - Tool set</li></ul>',
-            owner: 'yolande@cairns.co.za',
-            sharedWith: ['family@example.com'],
-            readonly: true
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: 'Notes',
-        type: 'folder',
-        children: [
-          {
-            id: 21,
-            name: 'Ideas',
-            type: 'document',
-            content: '<p>Future project ideas...</p>',
-            owner: 'cairnswm@gmail.com',
-            sharedWith: [],
-            readonly: true
-          },
-          {
-            id: 22,
-            name: 'Meeting Notes',
-            type: 'folder',
-            children: []
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: 'Shared with Me',
-        type: 'folder',
-        children: []
-      }
-    ]
-  });
+  const [folders, setFolders] = useState({});
 
   const { token } = useAuth();
   const { tenant } = useTenant();
