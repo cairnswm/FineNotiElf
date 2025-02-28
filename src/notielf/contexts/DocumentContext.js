@@ -113,7 +113,7 @@ export const DocumentProvider = ({ children }) => {
     const updateDocumentOwnership = async () => {
       try {
         // First, find the DocumentOwnership record for this document
-        const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}/ownership`, {
+        const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/documents/${id}/ownership"), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -132,7 +132,7 @@ export const DocumentProvider = ({ children }) => {
           const ownershipId = ownershipData[0].id;
           
           // Update the folder_id in the DocumentOwnership record
-          const updateResponse = await fetch(`http://localhost/notielf/php/api.php/documentownership/${ownershipId}`, {
+          const updateResponse = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/documentownership/${ownershipId}"), {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
@@ -158,7 +158,7 @@ export const DocumentProvider = ({ children }) => {
 
   const saveDocument = useCallback(async (id, data) => {
     try {
-      const response = await fetch(`http://localhost/notielf/php/api.php/documents/${id}`, {
+      const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, `api.php/documents/${id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -273,7 +273,7 @@ export const DocumentProvider = ({ children }) => {
     const createDocumentOnServer = async () => {
       try {
         // Step 1: Create the document
-        const response = await fetch('http://localhost/notielf/php/api.php/documents', {
+        const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/documents"), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -302,7 +302,7 @@ export const DocumentProvider = ({ children }) => {
           // Update the document with the server-generated ID
           if (createdDoc && createdDoc.id) {
             // Step 2: Create the DocumentOwnership record to link document to folder
-            const ownershipResponse = await fetch('http://localhost/notielf/php/api.php/documentownership', {
+            const ownershipResponse = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/documentownership"), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json; charset=utf-8',
@@ -408,7 +408,7 @@ export const DocumentProvider = ({ children }) => {
     const createDocumentOnServer = async () => {
       try {
         // Step 1: Create the document
-        const response = await fetch('http://localhost/notielf/php/api.php/documents', {
+        const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/documents"), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -437,7 +437,7 @@ export const DocumentProvider = ({ children }) => {
           // Update the document with the server-generated ID
           if (createdDoc && createdDoc.id) {
             // Step 2: Create the DocumentOwnership record to link document to folder
-            const ownershipResponse = await fetch('http://localhost/notielf/php/api.php/documentownership', {
+            const ownershipResponse = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/documentownership"), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json; charset=utf-8',

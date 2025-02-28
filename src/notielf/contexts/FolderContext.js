@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useAuth } from '../../auth/context/AuthContext';
 import { useTenant } from '../../auth/hooks/useTenant';
+import { combineUrlAndPath } from '../../auth/utils/combineUrlAndPath';
 
 const FolderContext = createContext();
 
@@ -56,7 +57,7 @@ export const FolderProvider = ({ children }) => {
       body.parent_id = parentFolderId;
     }
     try {
-      const response = await fetch('http://localhost/notielf/php/api.php/folders', {
+      const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "api.php/folders"), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +130,7 @@ export const FolderProvider = ({ children }) => {
     
     // Update folder on the server
     try {
-      const response = await fetch(`http://localhost/notielf/php/api.php/folders/${folderId}`, {
+      const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, `api.php/folders/${folderId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +157,7 @@ export const FolderProvider = ({ children }) => {
 
   const fetchFolders = useCallback(async (currentUser) => {
     try {
-      const response = await fetch(`http://localhost/notielf/php/userdocs.php`, {
+      const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, "userdocs.php"), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -279,7 +280,7 @@ export const FolderProvider = ({ children }) => {
     
     // Update folder on the server
     try {
-      const response = await fetch(`http://localhost/notielf/php/api.php/folders/${folderId}`, {
+      const response = await fetch(combineUrlAndPath(process.env.NOTIELF_API, `api.php/folders/${folderId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
