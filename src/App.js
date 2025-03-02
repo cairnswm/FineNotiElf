@@ -1,25 +1,31 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Navigation from './auth/components/Navigation';
-import Login from './auth/pages/Login';
-import Register from './auth/pages/Register';
-import ForgotPassword from './auth/pages/ForgotPassword';
-import Profile from './auth/pages/Profile';
-import HomePage from './auth/pages/HomePage';
-import Settings from './auth/pages/Settings';
-import Properties from './auth/pages/Properties';
-import Payment from './auth/pages/Payment';
 import ProtectedRoute from './auth/components/ProtectedRoute';
 import PublicRoute from './auth/components/PublicRoute';
 import AdminRoute from './auth/components/AdminRoute';
-import Main from './main';
-import AppPage from './notielf/pages/AppPage';
 import LandingPage from './notielf/pages/Landing/LandingPage';
+
+// Lazy load all components except LandingPage
+const Navigation = lazy(() => import('./auth/components/Navigation'));
+const Login = lazy(() => import('./auth/pages/Login'));
+const Register = lazy(() => import('./auth/pages/Register'));
+const ForgotPassword = lazy(() => import('./auth/pages/ForgotPassword'));
+const Profile = lazy(() => import('./auth/pages/Profile'));
+const HomePage = lazy(() => import('./auth/pages/HomePage'));
+const Settings = lazy(() => import('./auth/pages/Settings'));
+const Properties = lazy(() => import('./auth/pages/Properties'));
+const Payment = lazy(() => import('./auth/pages/Payment'));
+const Main = lazy(() => import('./main'));
+const AppPage = lazy(() => import('./notielf/pages/AppPage'));
 
 const App = () => {
   return (
     <>
-      
+      <Suspense fallback={<div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
@@ -94,6 +100,7 @@ const App = () => {
           }
         />
       </Routes>
+      </Suspense>
     </>
   );
 };
